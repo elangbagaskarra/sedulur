@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+  </head>
+
+  <body>
+    <h1>Login Admin</h1>
+
+    {% if form.errors %}
+    <p>Username atau password salah.</p>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <div>
+        <label>Username</label>
+        <input type="text" name="username" required />
+      </div>
+
+      <br />
+
+      <div>
+        <label>Password</label>
+        <input type="password" name="password" required />
+      </div>
+
+      <br />
+
+      <button type="submit">Login</button>
+    </form>
+  </body>
+</html>

@@ -1,0 +1,174 @@
+{% load static %}
+
+<!doctype html>
+
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{% block title %} PT Sedulur Berkarya Group {% endblock %}</title>
+
+    <link
+      rel="stylesheet"
+      href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}"
+    />
+
+    <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+
+    {% block extra_css %} {% endblock %}
+  </head>
+
+  <body>
+    <div class="app-container">
+      <!-- SIDEBAR -->
+
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-logo">
+            <i class="bi bi-buildings"></i>
+          </div>
+
+          <div>
+            <div class="brand-company">PT Seduur</div>
+
+            <div class="brand-company">Berkarys Grove</div>
+          </div>
+        </div>
+
+        <div class="sidebar-label">MENU UTAMA</div>
+
+        <nav class="sidebar-menu">
+          <a
+            href="{% url 'dashboard' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'dashboard' %} active {% endif %}"
+          >
+            <i class="bi bi-grid"></i>
+
+            <span> Dashboard </span>
+          </a>
+
+          <a
+            href="{% url 'customers:list' %}"
+            class="sidebar-link {% if request.resolver_match.namespace == 'customers' %} active {% endif %}"
+          >
+            <i class="bi bi-people"></i>
+
+            <span> Pelanggan </span>
+          </a>
+
+          <a href="#" class="sidebar-link">
+            <i class="bi bi-box-seam"></i>
+
+            <span> Produk & Stok </span>
+          </a>
+
+          <a href="#" class="sidebar-link">
+            <i class="bi bi-receipt"></i>
+
+            <span> Invoice </span>
+          </a>
+
+          <a href="#" class="sidebar-link">
+            <i class="bi bi-credit-card"></i>
+
+            <span> Pembayaran </span>
+          </a>
+
+          <a href="#" class="sidebar-link">
+            <i class="bi bi-percent"></i>
+
+            <span> Pajak </span>
+          </a>
+
+          <a href="#" class="sidebar-link">
+            <i class="bi bi-bar-chart"></i>
+
+            <span> Laporan </span>
+          </a>
+
+          <div class="sidebar-divider"></div>
+
+          <a href="#" class="sidebar-link">
+            <i class="bi bi-gear"></i>
+
+            <span> Pengaturan </span>
+          </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="sidebar-user">
+            <div class="sidebar-avatar">
+              <i class="bi bi-person"></i>
+            </div>
+
+            <div class="sidebar-user-info">
+              <strong> {{ request.user.username }} </strong>
+
+              <small> Administrator </small>
+            </div>
+          </div>
+
+          <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+
+            <button type="submit" class="logout-button">
+              <i class="bi bi-box-arrow-right"></i>
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+
+      <div class="main-wrapper">
+        <!-- NAVBAR -->
+
+        <header class="top-navbar">
+          <div class="top-search">
+            <i class="bi bi-search"></i>
+
+            <input
+              type="text"
+              placeholder="Cari pelanggan, invoice, produk..."
+            />
+          </div>
+
+          <div class="top-actions">
+            <button class="btn btn-success btn-create">
+              <i class="bi bi-plus-lg"></i>
+
+              Buat Invoice
+            </button>
+
+            <div class="top-profile">
+              <div class="profile-icon">
+                <i class="bi bi-person"></i>
+              </div>
+
+              <div>
+                <strong> {{ request.user.username }} </strong>
+
+                <small> Admin </small>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="content-area">{% block content %} {% endblock %}</main>
+      </div>
+    </div>
+
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+    <script src="{% static 'js/app.js' %}"></script>
+
+    {% block extra_js %} {% endblock %}
+  </body>
+</html>

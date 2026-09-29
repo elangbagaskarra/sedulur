@@ -1,0 +1,283 @@
+{% extends "layouts/base.html" %} {% block title %} Pelanggan | PT Seduur
+Berkarys Grove {% endblock %} {% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="page-title">Pelanggan</h1>
+
+    <p class="page-description">
+      Kelola data pelanggan, perusahaan, dan informasi perpajakan.
+    </p>
+  </div>
+
+  <a href="{% url 'customers:create' %}" class="btn btn-success">
+    <i class="bi bi-plus-lg me-1"></i>
+
+    Tambah Pelanggan
+  </a>
+</div>
+
+{% if messages %} {% for message in messages %}
+
+<div
+  class="alert
+                   alert-{{ message.tags }}
+                   alert-dismissible
+                   fade show"
+>
+  {{ message }}
+
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+{% endfor %} {% endif %}
+
+<!-- SUMMARY -->
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon blue">
+          <i class="bi bi-people"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Total Pelanggan</div>
+
+          <div class="stat-value">{{ total_customers }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon green">
+          <i class="bi bi-check-circle"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Aktif</div>
+
+          <div class="stat-value">{{ active_customers }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon red">
+          <i class="bi bi-slash-circle"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Nonaktif</div>
+
+          <div class="stat-value">{{ inactive_customers }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-card">
+  <div class="app-card-header">
+    <div>
+      <h5 class="app-card-title">Daftar Pelanggan</h5>
+
+      <small class="text-muted">
+        Data pelanggan yang tersimpan di aplikasi.
+      </small>
+    </div>
+  </div>
+
+  <div class="p-3 border-bottom">
+    <form method="GET" class="row g-2">
+      <div class="col-md-7">
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="bi bi-search"></i>
+          </span>
+
+          <input
+            type="text"
+            name="q"
+            class="form-control"
+            placeholder="Cari nama, kode, NPWP, email..."
+            value="{{ query }}"
+          />
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <select name="status" class="form-select">
+          <option
+            value="active"
+            {%
+            if
+            status=""
+            ="active"
+            %}selected{%
+            endif
+            %}
+          >
+            Aktif
+          </option>
+
+          <option
+            value="inactive"
+            {%
+            if
+            status=""
+            ="inactive"
+            %}selected{%
+            endif
+            %}
+          >
+            Nonaktif
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <button class="btn btn-dark w-100">Filter</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">KODE</th>
+
+          <th>PELANGGAN</th>
+
+          <th>KONTAK</th>
+
+          <th>NPWP</th>
+
+          <th>STATUS</th>
+
+          <th class="text-end pe-4">AKSI</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for customer in page_obj %}
+
+        <tr>
+          <td class="ps-4">
+            <span class="fw-semibold"> {{ customer.code }} </span>
+          </td>
+
+          <td>
+            <a
+              href="{% url 'customers:detail' customer.pk %}"
+              class="text-decoration-none text-dark fw-semibold"
+            >
+              {% if customer.company_name %} {{ customer.company_name }} {% else
+              %} {{ customer.name }} {% endif %}
+            </a>
+
+            <div class="small text-muted">{{ customer.name }}</div>
+          </td>
+
+          <td>
+            <div>{{ customer.phone|default:"-" }}</div>
+
+            <small class="text-muted"> {{ customer.email|default:"-" }} </small>
+          </td>
+
+          <td>{{ customer.npwp|default:"-" }}</td>
+
+          <td>
+            {% if customer.is_active %}
+
+            <span class="badge bg-success-subtle text-success"> Aktif </span>
+
+            {% else %}
+
+            <span class="badge bg-danger-subtle text-danger"> Nonaktif </span>
+
+            {% endif %}
+          </td>
+
+          <td class="text-end pe-4">
+            <a
+              href="{% url 'customers:detail' customer.pk %}"
+              class="btn btn-sm btn-light"
+              title="Detail"
+            >
+              <i class="bi bi-eye"></i>
+            </a>
+
+            <a
+              href="{% url 'customers:update' customer.pk %}"
+              class="btn btn-sm btn-light"
+              title="Edit"
+            >
+              <i class="bi bi-pencil"></i>
+            </a>
+          </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+          <td colspan="6" class="text-center py-5 text-muted">
+            <i class="bi bi-people fs-2 d-block mb-2"> </i>
+
+            Belum ada pelanggan.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+
+  <div class="d-flex justify-content-between align-items-center p-3 border-top">
+    <small class="text-muted">
+      Halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}
+    </small>
+
+    <nav>
+      <ul class="pagination mb-0">
+        {% if page_obj.has_previous %}
+
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="?page={{ page_obj.previous_page_number }}&q={{ query }}&status={{ status }}"
+          >
+            Sebelumnya
+          </a>
+        </li>
+
+        {% endif %} {% if page_obj.has_next %}
+
+        <li class="page-item">
+          <a
+            class="page-link"
+            href="?page={{ page_obj.next_page_number }}&q={{ query }}&status={{ status }}"
+          >
+            Berikutnya
+          </a>
+        </li>
+
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+
+  {% endif %}
+</div>
+
+{% endblock %}

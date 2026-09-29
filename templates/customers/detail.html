@@ -1,0 +1,169 @@
+{% extends "layouts/base.html" %} {% block title %} {{ customer.name }} |
+Pelanggan {% endblock %} {% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <a
+      href="{% url 'customers:list' %}"
+      class="text-decoration-none text-muted small"
+    >
+      <i class="bi bi-arrow-left"></i>
+
+      Kembali ke pelanggan
+    </a>
+
+    <h1 class="page-title mt-2">
+      {% if customer.company_name %} {{ customer.company_name }} {% else %} {{
+      customer.name }} {% endif %}
+    </h1>
+
+    <p class="page-description">
+      {{ customer.code }} · {% if customer.get_customer_type_display %} {{
+      customer.get_customer_type_display }} {% endif %}
+    </p>
+  </div>
+
+  <div class="d-flex gap-2">
+    <a
+      href="{% url 'customers:update' customer.pk %}"
+      class="btn btn-light border"
+    >
+      <i class="bi bi-pencil me-1"></i>
+
+      Edit
+    </a>
+
+    <form
+      method="POST"
+      action="{% url 'customers:toggle_status' customer.pk %}"
+    >
+      {% csrf_token %} {% if customer.is_active %}
+
+      <button class="btn btn-outline-danger">Nonaktifkan</button>
+
+      {% else %}
+
+      <button class="btn btn-outline-success">Aktifkan</button>
+
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+{% if messages %} {% for message in messages %}
+
+<div
+  class="alert
+                   alert-{{ message.tags }}"
+>
+  {{ message }}
+</div>
+
+{% endfor %} {% endif %}
+
+<div class="row g-4">
+  <div class="col-xl-8">
+    <div class="app-card mb-4">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Informasi Pelanggan</h5>
+      </div>
+
+      <div class="app-card-body">
+        <div class="row gy-4">
+          <div class="col-md-6">
+            <small class="text-muted"> Nama </small>
+
+            <div class="fw-semibold">{{ customer.name }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Perusahaan </small>
+
+            <div class="fw-semibold">
+              {{ customer.company_name|default:"-" }}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Telepon </small>
+
+            <div>{{ customer.phone|default:"-" }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Email </small>
+
+            <div>{{ customer.email|default:"-" }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> PIC </small>
+
+            <div>{{ customer.pic_name|default:"-" }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Status </small>
+
+            <div>
+              {% if customer.is_active %}
+
+              <span class="badge bg-success-subtle text-success"> Aktif </span>
+
+              {% else %}
+
+              <span class="badge bg-danger-subtle text-danger"> Nonaktif </span>
+
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Alamat</h5>
+      </div>
+
+      <div class="app-card-body">
+        <p class="mb-1">{{ customer.address|default:"-" }}</p>
+
+        <div class="text-muted">
+          {{ customer.city }} {% if customer.postal_code %} {{
+          customer.postal_code }} {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="app-card mb-4">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Informasi Pajak</h5>
+      </div>
+
+      <div class="app-card-body">
+        <small class="text-muted"> NPWP </small>
+
+        <div class="fw-semibold mb-3">{{ customer.npwp|default:"-" }}</div>
+
+        <small class="text-muted"> NIK </small>
+
+        <div class="fw-semibold">{{ customer.nik|default:"-" }}</div>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Catatan</h5>
+      </div>
+
+      <div class="app-card-body">
+        {{ customer.notes|default:"Tidak ada catatan."|linebreaks }}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "layouts/base.html" %} {% block title %} Dashboard | PT Seduur
+Berkarys Grove {% endblock %} {% block content %}
+
+<div class="page-heading">
+  <h1 class="page-title">Dashboard</h1>
+
+  <p class="page-description">
+    Ringkasan aktivitas penjualan, keuangan, dan pajak perusahaan.
+  </p>
+</div>
+
+<!-- STATISTIC -->
+
+<div class="row g-3 mb-4">
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon green">
+          <i class="bi bi-graph-up-arrow"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Omzet Bulan Ini</div>
+
+          <div class="stat-value">Rp 0</div>
+
+          <div class="stat-note">Belum ada transaksi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon yellow">
+          <i class="bi bi-wallet2"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Piutang Aktif</div>
+
+          <div class="stat-value">Rp 0</div>
+
+          <div class="stat-note">0 invoice</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon red">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Invoice Jatuh Tempo</div>
+
+          <div class="stat-value">0</div>
+
+          <div class="stat-note">Tidak ada invoice overdue</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon blue">
+          <i class="bi bi-percent"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">PPN Keluaran</div>
+
+          <div class="stat-value">Rp 0</div>
+
+          <div class="stat-note">Bulan berjalan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHART -->
+
+<div class="row g-3 mb-4">
+  <div class="col-xl-8">
+    <div class="app-card">
+      <div class="app-card-header">
+        <div>
+          <h5 class="app-card-title">Tren Penjualan 12 Bulan</h5>
+
+          <small class="text-muted"> Total omzet per bulan </small>
+        </div>
+      </div>
+
+      <div class="app-card-body">
+        <div
+          class="d-flex align-items-center justify-content-center text-muted"
+          style="height: 280px; background: #f8fafb; border-radius: 8px"
+        >
+          Grafik Chart.js akan tampil di sini
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">
+          <i class="bi bi-bell text-warning me-1"> </i>
+
+          Perlu Perhatian
+        </h5>
+      </div>
+
+      <div class="app-card-body">
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-check-circle fs-2 text-success"> </i>
+
+          <p class="mt-2 mb-0">Tidak ada invoice jatuh tempo.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSAKSI -->
+
+<div class="app-card">
+  <div class="app-card-header">
+    <div>
+      <h5 class="app-card-title">Transaksi Terbaru</h5>
+
+      <small class="text-muted"> Invoice terbaru perusahaan </small>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">INVOICE</th>
+
+          <th>TANGGAL</th>
+
+          <th>PELANGGAN</th>
+
+          <th>STATUS</th>
+
+          <th class="text-end pe-4">NOMINAL</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td colspan="5" class="text-center py-5 text-muted">
+            Belum ada transaksi.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

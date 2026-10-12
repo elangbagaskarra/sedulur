@@ -1,0 +1,153 @@
+{% extends "layouts/base.html" %} {% block title %} {{ title }} {% endblock %}
+{% block content %}
+
+<div class="mb-4">
+  <a
+    href="{% url 'products:list' %}"
+    class="text-muted text-decoration-none small"
+  >
+    <i class="bi bi-arrow-left"></i>
+    Kembali
+  </a>
+
+  <h1 class="page-title mt-2">{{ title }}</h1>
+
+  <p class="page-description">{{ subtitle }}</p>
+</div>
+
+<form method="POST">
+  {% csrf_token %}
+
+  <div class="row g-4">
+    <div class="col-xl-8">
+      <div class="app-card mb-4">
+        <div class="app-card-header">
+          <h5 class="app-card-title">Informasi Produk</h5>
+        </div>
+
+        <div class="app-card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label"> SKU </label>
+
+              {{ form.sku }} {{ form.sku.errors }}
+            </div>
+
+            <div class="col-md-8">
+              <label class="form-label"> Nama Produk / Jasa </label>
+
+              {{ form.name }} {{ form.name.errors }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"> Kategori </label>
+
+              {{ form.category }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"> Jenis </label>
+
+              {{ form.product_type }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label"> Deskripsi </label>
+
+              {{ form.description }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-card mb-4">
+        <div class="app-card-header">
+          <h5 class="app-card-title">Harga & Stok</h5>
+        </div>
+
+        <div class="app-card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label"> Satuan </label>
+
+              {{ form.unit }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label"> Harga Jual </label>
+
+              {{ form.sale_price }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label"> Stok Awal </label>
+
+              {{ form.stock_quantity }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label"> Minimum Stok </label>
+
+              {{ form.minimum_stock }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-card">
+        <div class="app-card-header">
+          <h5 class="app-card-title">Pajak</h5>
+        </div>
+
+        <div class="app-card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label"> Pajak Default </label>
+
+              {{ form.default_tax }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="app-card mb-4">
+        <div class="app-card-header">
+          <h5 class="app-card-title">Pengaturan</h5>
+        </div>
+
+        <div class="app-card-body">
+          <div class="form-check form-switch mb-3">
+            {{ form.manage_stock }}
+
+            <label class="form-check-label"> Kelola stok </label>
+          </div>
+
+          <div class="form-check form-switch mb-3">
+            {{ form.taxable }}
+
+            <label class="form-check-label"> Kena pajak </label>
+          </div>
+
+          <div class="form-check form-switch">
+            {{ form.is_active }}
+
+            <label class="form-check-label"> Produk aktif </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button class="btn btn-success btn-lg">
+          <i class="bi bi-check-lg"></i>
+          Simpan
+        </button>
+
+        <a href="{% url 'products:list' %}" class="btn btn-light"> Batal </a>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

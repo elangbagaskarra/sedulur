@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %} {% block title %} Update Stok {% endblock %}
+{% block content %}
+
+<div class="mb-4">
+  <a
+    href="{% url 'products:detail' product.pk %}"
+    class="text-muted text-decoration-none small"
+  >
+    <i class="bi bi-arrow-left"></i>
+    Kembali
+  </a>
+
+  <h1 class="page-title mt-2">Update Stok</h1>
+
+  <p class="page-description">
+    {{ product.name }} · Stok sekarang: {{ product.stock_quantity }} {{
+    product.unit }}
+  </p>
+</div>
+
+<div class="row">
+  <div class="col-xl-7">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Pergerakan Stok</h5>
+      </div>
+
+      <div class="app-card-body">
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label"> Jenis </label>
+
+            {{ form.movement_type }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"> Jumlah </label>
+
+            {{ form.quantity }} {{ form.quantity.errors }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"> Referensi </label>
+
+            {{ form.reference }}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label"> Catatan </label>
+
+            {{ form.notes }}
+          </div>
+
+          <button class="btn btn-success">Simpan Stok</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,269 @@
+{% extends "layouts/base.html" %} {% block content %}
+<div class="d-flex gap-2">
+  {% if invoice.status != "DRAFT" and invoice.status != "PAID" %}
+
+  <a href="{% url 'payments:create' invoice.pk %}" class="btn btn-success">
+    <i class="bi bi-credit-card me-1"></i>
+    Catat Pembayaran
+  </a>
+
+  {% endif %}
+</div>
+<div class="d-flex gap-2">
+  <a
+    href="{% url 'invoices:print' invoice.pk %}"
+    target="_blank"
+    class="btn btn-light border"
+  >
+    <i class="bi bi-printer me-1"></i>
+    Print
+  </a>
+
+  <a href="{% url 'invoices:pdf' invoice.pk %}" class="btn btn-light border">
+    <i class="bi bi-file-earmark-pdf me-1"></i>
+    Download PDF
+  </a>
+
+  {% if invoice.status != "DRAFT" and invoice.status != "PAID" %}
+
+  <a href="{% url 'payments:create' invoice.pk %}" class="btn btn-success">
+    <i class="bi bi-credit-card me-1"></i>
+    Catat Pembayaran
+  </a>
+
+  {% endif %}
+</div>
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <a
+      href="{% url 'invoices:list' %}"
+      class="text-muted text-decoration-none small"
+    >
+      <i class="bi bi-arrow-left"></i>
+      Kembali
+    </a>
+
+    <h1 class="page-title mt-2">{{ invoice.invoice_number }}</h1>
+
+    <p class="page-description">{{ invoice.customer_name }}</p>
+  </div>
+
+  <div>
+    {% if invoice.status == "DRAFT" %}
+
+    <span class="badge bg-secondary fs-6"> Draft </span>
+
+    {% elif invoice.status == "UNPAID" %}
+
+    <span class="badge bg-warning text-dark fs-6"> Belum Lunas </span>
+
+    {% elif invoice.status == "PARTIAL" %}
+
+    <span class="badge bg-info fs-6"> Sebagian </span>
+
+    {% elif invoice.status == "PAID" %}
+
+    <span class="badge bg-success fs-6"> Lunas </span>
+
+    {% endif %}
+  </div>
+</div>
+
+{% if messages %} {% for message in messages %}
+
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+
+{% endfor %} {% endif %}
+
+<div class="row g-4">
+  <div class="col-xl-8">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Item Invoice</h5>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Item</th>
+
+              <th>Qty</th>
+
+              <th>Harga</th>
+
+              <th>Diskon</th>
+
+              <th>Pajak</th>
+
+              <th class="text-end pe-4">Total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for item in invoice.items.all %}
+
+            <tr>
+              <td class="ps-4">
+                <div class="fw-semibold">{{ item.product_name }}</div>
+
+                <small class="text-muted">
+                  {{ item.description|default:"-" }}
+                </small>
+              </td>
+
+              <td>{{ item.quantity }} {{ item.unit }}</td>
+
+              <td>Rp {{ item.unit_price|floatformat:0 }}</td>
+
+              <td>{{ item.discount_percent|floatformat:2 }}%</td>
+
+              <td>
+                {% if item.tax_name %} {{ item.tax_name }} {{
+                item.tax_rate|floatformat:2 }}% {% else %} Non Pajak {% endif %}
+              </td>
+
+              <td class="text-end pe-4 fw-semibold">
+                Rp {{ item.line_total|floatformat:0 }}
+              </td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="app-card mb-4">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Informasi</h5>
+      </div>
+
+      <div class="app-card-body">
+        <small class="text-muted"> Pelanggan </small>
+
+        <div class="fw-semibold mb-3">{{ invoice.customer_name }}</div>
+
+        <small class="text-muted"> NPWP </small>
+
+        <div class="mb-3">{{ invoice.customer_npwp|default:"-" }}</div>
+
+        <small class="text-muted"> Tanggal Invoice </small>
+
+        <div class="mb-3">{{ invoice.invoice_date|date:"d/m/Y" }}</div>
+
+        <small class="text-muted"> Jatuh Tempo </small>
+
+        <div>{{ invoice.due_date|date:"d/m/Y"|default:"-" }}</div>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Ringkasan</h5>
+      </div>
+
+      <div class="app-card-body">
+        <div class="d-flex justify-content-between mb-3">
+          <span> Subtotal </span>
+
+          <strong> Rp {{ invoice.subtotal|floatformat:0 }} </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> Diskon </span>
+
+          <strong> Rp {{ invoice.discount_total|floatformat:0 }} </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> Pajak </span>
+
+          <strong> Rp {{ invoice.tax_total|floatformat:0 }} </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> PPh / Potongan </span>
+
+          <strong> - Rp {{ invoice.withholding_total|floatformat:0 }} </strong>
+        </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between">
+          <span class="fw-bold"> Total </span>
+
+          <strong class="fs-5 text-success">
+            Rp {{ invoice.grand_total|floatformat:0 }}
+          </strong>
+        </div>
+        <hr />
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> Sudah Dibayar </span>
+
+          <strong class="text-success">
+            Rp {{ invoice.paid_amount|floatformat:0 }}
+          </strong>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <span> Sisa Tagihan </span>
+
+          <strong class="text-danger">
+            Rp {{ invoice.balance_due|floatformat:0 }}
+          </strong>
+        </div>
+
+        <div class="app-card mt-4">
+          <div class="app-card-header">
+            <h5 class="app-card-title">Riwayat Pembayaran</h5>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="ps-4">Tanggal</th>
+                  <th>Metode</th>
+                  <th>Referensi</th>
+                  <th class="text-end pe-4">Nominal</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% for payment in invoice.payments.all %}
+
+                <tr>
+                  <td class="ps-4">{{ payment.payment_date|date:"d/m/Y" }}</td>
+
+                  <td>{{ payment.get_method_display }}</td>
+
+                  <td>{{ payment.reference_number|default:"-" }}</td>
+
+                  <td class="text-end pe-4 fw-semibold">
+                    Rp {{ payment.amount|floatformat:0 }}
+                  </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                  <td colspan="4" class="text-center py-4 text-muted">
+                    Belum ada pembayaran.
+                  </td>
+                </tr>
+
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

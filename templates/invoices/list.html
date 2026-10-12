@@ -1,0 +1,190 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="page-title">Invoice</h1>
+
+    <p class="page-description">
+      Kelola invoice, status pembayaran, dan tagihan pelanggan.
+    </p>
+  </div>
+
+  <a href="{% url 'invoices:create' %}" class="btn btn-success">
+    <i class="bi bi-plus-lg me-1"></i>
+    Buat Invoice
+  </a>
+</div>
+
+{% if messages %} {% for message in messages %}
+
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+
+{% endfor %} {% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">Total Invoice</div>
+
+      <div class="stat-value">{{ total_invoices }}</div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">Draft</div>
+
+      <div class="stat-value">{{ draft_invoices }}</div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">Belum Lunas</div>
+
+      <div class="stat-value">{{ unpaid_invoices }}</div>
+    </div>
+  </div>
+
+  <div class="col-xl-3 col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">Lunas</div>
+
+      <div class="stat-value">{{ paid_invoices }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="app-card">
+  <div class="p-3 border-bottom">
+    <form method="GET" class="row g-2">
+      <div class="col-md-8">
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          class="form-control"
+          placeholder="Cari nomor invoice atau pelanggan..."
+        />
+      </div>
+
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option value="all">Semua Status</option>
+
+          <option value="DRAFT">Draft</option>
+
+          <option value="UNPAID">Belum Lunas</option>
+
+          <option value="PARTIAL">Sebagian</option>
+
+          <option value="PAID">Lunas</option>
+
+          <option value="OVERDUE">Jatuh Tempo</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <button class="btn btn-dark w-100">Filter</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">INVOICE</th>
+
+          <th>TANGGAL</th>
+
+          <th>PELANGGAN</th>
+
+          <th>TOTAL</th>
+
+          <th>SISA</th>
+
+          <th>STATUS</th>
+
+          <th class="text-end pe-4">AKSI</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for invoice in page_obj %}
+
+        <tr>
+          <td class="ps-4">
+            <a
+              href="{% url 'invoices:detail' invoice.pk %}"
+              class="fw-semibold text-dark text-decoration-none"
+            >
+              {{ invoice.invoice_number }}
+            </a>
+          </td>
+
+          <td>{{ invoice.invoice_date|date:"d/m/Y" }}</td>
+
+          <td>{{ invoice.customer_name }}</td>
+
+          <td class="fw-semibold">
+            Rp {{ invoice.grand_total|floatformat:0 }}
+          </td>
+
+          <td>Rp {{ invoice.balance_due|floatformat:0 }}</td>
+
+          <td>
+            {% if invoice.status == "DRAFT" %}
+
+            <span class="badge bg-secondary-subtle text-secondary">
+              Draft
+            </span>
+
+            {% elif invoice.status == "UNPAID" %}
+
+            <span class="badge bg-warning-subtle text-warning">
+              Belum Lunas
+            </span>
+
+            {% elif invoice.status == "PARTIAL" %}
+
+            <span class="badge bg-info-subtle text-info"> Sebagian </span>
+
+            {% elif invoice.status == "PAID" %}
+
+            <span class="badge bg-success-subtle text-success"> Lunas </span>
+
+            {% elif invoice.status == "OVERDUE" %}
+
+            <span class="badge bg-danger-subtle text-danger">
+              Jatuh Tempo
+            </span>
+
+            {% endif %}
+          </td>
+
+          <td class="text-end pe-4">
+            <a
+              href="{% url 'invoices:detail' invoice.pk %}"
+              class="btn btn-sm btn-light"
+            >
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">
+            Belum ada invoice.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

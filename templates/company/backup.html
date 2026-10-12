@@ -1,0 +1,171 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="page-title">Backup & Restore</h1>
+
+    <p class="page-description">
+      Amankan database aplikasi atau pulihkan data dari backup.
+    </p>
+  </div>
+
+  <a href="{% url 'company:settings' %}" class="btn btn-light border">
+    <i class="bi bi-arrow-left me-1"></i>
+    Pengaturan
+  </a>
+</div>
+
+{% for message in messages %}
+
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+
+{% endfor %}
+
+<div class="row g-4">
+  <div class="col-xl-6">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <div>
+          <h5 class="app-card-title">Backup Database</h5>
+
+          <small class="text-muted"> Buat salinan semua data aplikasi. </small>
+        </div>
+      </div>
+
+      <div class="app-card-body">
+        <div class="mb-4">
+          <div
+            class="d-flex align-items-center justify-content-center bg-light rounded"
+            style="height: 130px"
+          >
+            <i class="bi bi-database-down" style="font-size: 48px"></i>
+          </div>
+        </div>
+
+        <p class="text-muted">
+          Backup mencakup pelanggan, produk, stok, invoice, pembayaran, pajak,
+          dan konfigurasi perusahaan.
+        </p>
+
+        <div class="alert alert-info">
+          Simpan file backup di flashdisk, hard disk lain, atau penyimpanan
+          pribadi.
+        </div>
+
+        <div class="d-grid">
+          <a
+            href="{% url 'company:backup_download' %}"
+            class="btn btn-success btn-lg"
+          >
+            <i class="bi bi-download me-1"></i>
+
+            Buat & Download Backup
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-6">
+    <div class="app-card h-100">
+      <div class="app-card-header">
+        <div>
+          <h5 class="app-card-title">Restore Database</h5>
+
+          <small class="text-muted">
+            Pulihkan aplikasi dari file backup sebelumnya.
+          </small>
+        </div>
+      </div>
+
+      <div class="app-card-body">
+        <div class="alert alert-warning">
+          <strong>Perhatian.</strong>
+
+          Data aplikasi saat ini akan diganti oleh isi file backup. Sistem akan
+          otomatis membuat backup pengaman sebelum proses restore.
+        </div>
+
+        <form
+          method="POST"
+          action="{% url 'company:restore' %}"
+          enctype="multipart/form-data"
+        >
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label"> File Backup </label>
+
+            {{ restore_form.database_file }}
+          </div>
+
+          <div class="form-check mb-4">
+            {{ restore_form.confirmation }}
+
+            <label class="form-check-label">
+              Saya memahami bahwa database saat ini akan diganti.
+            </label>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+              Restore Database
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-card mt-4">
+  <div class="app-card-header">
+    <div>
+      <h5 class="app-card-title">Backup Lokal Terakhir</h5>
+
+      <small class="text-muted">
+        Backup yang tersimpan di komputer aplikasi.
+      </small>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">Nama File</th>
+
+          <th>Ukuran</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for backup in backups %}
+
+        <tr>
+          <td class="ps-4">
+            <i class="bi bi-database me-2"></i>
+
+            {{ backup.name }}
+          </td>
+
+          <td>{{ backup.size|filesizeformat }}</td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+          <td colspan="2" class="text-center py-5 text-muted">
+            Belum ada backup lokal.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

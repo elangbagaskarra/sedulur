@@ -1,0 +1,71 @@
+{% extends "layouts/base.html" %} {% block title %} Riwayat Stok {% endblock %}
+{% block content %}
+
+<div class="mb-4">
+  <h1 class="page-title">Riwayat Stok</h1>
+
+  <p class="page-description">
+    Semua transaksi stok masuk, keluar, dan penyesuaian.
+  </p>
+</div>
+
+<div class="app-card">
+  <div class="p-3 border-bottom">
+    <form method="GET">
+      <input
+        name="q"
+        value="{{ query }}"
+        class="form-control"
+        placeholder="Cari produk, SKU, referensi..."
+      />
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">Tanggal</th>
+          <th>Produk</th>
+          <th>Jenis</th>
+          <th>Jumlah</th>
+          <th>Sebelum</th>
+          <th>Sesudah</th>
+          <th>Referensi</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for movement in page_obj %}
+
+        <tr>
+          <td class="ps-4">{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+
+          <td>{{ movement.product.name }}</td>
+
+          <td>{{ movement.get_movement_type_display }}</td>
+
+          <td>{{ movement.quantity }}</td>
+
+          <td>{{ movement.stock_before }}</td>
+
+          <td>{{ movement.stock_after }}</td>
+
+          <td>{{ movement.reference|default:"-" }}</td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">
+            Belum ada riwayat stok.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

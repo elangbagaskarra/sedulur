@@ -1,0 +1,168 @@
+{% extends "layouts/base.html" %} {% block title %} {{ product.name }} | Produk
+{% endblock %} {% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <a
+      href="{% url 'products:list' %}"
+      class="text-muted text-decoration-none small"
+    >
+      <i class="bi bi-arrow-left"></i>
+      Kembali
+    </a>
+
+    <h1 class="page-title mt-2">{{ product.name }}</h1>
+
+    <p class="page-description">{{ product.sku }}</p>
+  </div>
+
+  <div class="d-flex gap-2">
+    {% if product.manage_stock %}
+
+    <a
+      href="{% url 'products:stock_adjustment' product.pk %}"
+      class="btn btn-outline-success"
+    >
+      <i class="bi bi-box-arrow-in-down"></i>
+      Update Stok
+    </a>
+
+    {% endif %}
+
+    <a
+      href="{% url 'products:update' product.pk %}"
+      class="btn btn-light border"
+    >
+      <i class="bi bi-pencil"></i>
+      Edit
+    </a>
+  </div>
+</div>
+
+{% if messages %} {% for message in messages %}
+
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+
+{% endfor %} {% endif %}
+
+<div class="row g-4">
+  <div class="col-xl-8">
+    <div class="app-card mb-4">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Informasi Produk</h5>
+      </div>
+
+      <div class="app-card-body">
+        <div class="row gy-4">
+          <div class="col-md-6">
+            <small class="text-muted"> Nama </small>
+
+            <div class="fw-semibold">{{ product.name }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Kategori </small>
+
+            <div>{{ product.category|default:"-" }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Jenis </small>
+
+            <div>{{ product.get_product_type_display }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Satuan </small>
+
+            <div>{{ product.unit }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Harga </small>
+
+            <div class="fw-semibold">
+              Rp {{ product.sale_price|floatformat:0 }}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Stok </small>
+
+            <div class="fw-semibold">
+              {% if product.manage_stock %} {{ product.stock_quantity }} {{
+              product.unit }} {% else %} Tidak dikelola {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Riwayat Stok Terbaru</h5>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Tanggal</th>
+              <th>Jenis</th>
+              <th>Jumlah</th>
+              <th>Sebelum</th>
+              <th>Sesudah</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for movement in movements %}
+
+            <tr>
+              <td>{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+
+              <td>{{ movement.get_movement_type_display }}</td>
+
+              <td>{{ movement.quantity }}</td>
+
+              <td>{{ movement.stock_before }}</td>
+
+              <td>{{ movement.stock_after }}</td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">
+                Belum ada pergerakan stok.
+              </td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Pajak</h5>
+      </div>
+
+      <div class="app-card-body">
+        <small class="text-muted"> Status Pajak </small>
+
+        <div class="mb-3">
+          {% if product.taxable %} Kena Pajak {% else %} Non Pajak {% endif %}
+        </div>
+
+        <small class="text-muted"> Pajak Default </small>
+
+        <div>{{ product.default_tax|default:"-" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends "layouts/base.html" %} {% block title %} Produk & Stok {% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="page-title">Produk & Stok</h1>
+
+    <p class="page-description">
+      Kelola produk, jasa, harga, kategori, dan persediaan.
+    </p>
+  </div>
+
+  <div class="d-flex gap-2">
+    <a href="{% url 'products:category_list' %}" class="btn btn-light border">
+      <i class="bi bi-tags me-1"></i>
+      Kategori
+    </a>
+
+    <a href="{% url 'products:create' %}" class="btn btn-success">
+      <i class="bi bi-plus-lg me-1"></i>
+      Tambah Produk
+    </a>
+  </div>
+</div>
+
+{% if messages %} {% for message in messages %}
+
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+
+{% endfor %} {% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon blue">
+          <i class="bi bi-box-seam"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Total Produk</div>
+
+          <div class="stat-value">{{ total_products }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon green">
+          <i class="bi bi-check-circle"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Produk Aktif</div>
+
+          <div class="stat-value">{{ active_products }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="stat-card">
+      <div class="stat-card-content">
+        <div class="stat-icon yellow">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+
+        <div>
+          <div class="stat-label">Kelola Stok</div>
+
+          <div class="stat-value">{{ low_stock_products }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app-card">
+  <div class="app-card-header">
+    <div>
+      <h5 class="app-card-title">Daftar Produk & Jasa</h5>
+
+      <small class="text-muted"> Semua produk yang tersimpan. </small>
+    </div>
+
+    <a
+      href="{% url 'products:stock_history' %}"
+      class="btn btn-sm btn-light border"
+    >
+      Riwayat Stok
+    </a>
+  </div>
+
+  <div class="p-3 border-bottom">
+    <form method="GET" class="row g-2">
+      <div class="col-md-5">
+        <input
+          name="q"
+          value="{{ query }}"
+          class="form-control"
+          placeholder="Cari SKU, nama, kategori..."
+        />
+      </div>
+
+      <div class="col-md-3">
+        <select name="type" class="form-select">
+          <option value="all">Semua Jenis</option>
+
+          <option
+            value="GOODS"
+            {%
+            if
+            product_type=""
+            ="GOODS"
+            %}selected{%
+            endif
+            %}
+          >
+            Barang
+          </option>
+
+          <option
+            value="SERVICE"
+            {%
+            if
+            product_type=""
+            ="SERVICE"
+            %}selected{%
+            endif
+            %}
+          >
+            Jasa
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option
+            value="active"
+            {%
+            if
+            status=""
+            ="active"
+            %}selected{%
+            endif
+            %}
+          >
+            Aktif
+          </option>
+
+          <option
+            value="inactive"
+            {%
+            if
+            status=""
+            ="inactive"
+            %}selected{%
+            endif
+            %}
+          >
+            Nonaktif
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <button class="btn btn-dark w-100">Filter</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">SKU</th>
+          <th>PRODUK</th>
+          <th>JENIS</th>
+          <th>HARGA</th>
+          <th>STOK</th>
+          <th>STATUS</th>
+          <th class="text-end pe-4">AKSI</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for product in page_obj %}
+
+        <tr>
+          <td class="ps-4">{{ product.sku }}</td>
+
+          <td>
+            <a
+              href="{% url 'products:detail' product.pk %}"
+              class="fw-semibold text-dark text-decoration-none"
+            >
+              {{ product.name }}
+            </a>
+
+            <div class="small text-muted">
+              {{ product.category|default:"Tanpa kategori" }}
+            </div>
+          </td>
+
+          <td>
+            {% if product.product_type == "GOODS" %}
+
+            <span class="badge bg-primary-subtle text-primary"> Barang </span>
+
+            {% else %}
+
+            <span class="badge bg-info-subtle text-info"> Jasa </span>
+
+            {% endif %}
+          </td>
+
+          <td>Rp {{ product.sale_price|floatformat:0 }}</td>
+
+          <td>
+            {% if product.manage_stock %} {{
+            product.stock_quantity|floatformat:3 }} {{ product.unit }} {% else
+            %}
+
+            <span class="text-muted"> - </span>
+
+            {% endif %}
+          </td>
+
+          <td>
+            {% if product.is_active %}
+
+            <span class="badge bg-success-subtle text-success"> Aktif </span>
+
+            {% else %}
+
+            <span class="badge bg-danger-subtle text-danger"> Nonaktif </span>
+
+            {% endif %}
+          </td>
+
+          <td class="text-end pe-4">
+            <a
+              href="{% url 'products:detail' product.pk %}"
+              class="btn btn-sm btn-light"
+            >
+              <i class="bi bi-eye"></i>
+            </a>
+
+            <a
+              href="{% url 'products:update' product.pk %}"
+              class="btn btn-sm btn-light"
+            >
+              <i class="bi bi-pencil"></i>
+            </a>
+          </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">
+            Belum ada produk.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

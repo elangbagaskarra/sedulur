@@ -1,0 +1,243 @@
+{% extends "layouts/base.html" %} {% load currency %} {% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="page-title">Laporan</h1>
+
+    <p class="page-description">
+      Ringkasan penjualan, pembayaran, piutang, dan pajak perusahaan.
+    </p>
+  </div>
+</div>
+
+<div class="app-card mb-4">
+  <div class="app-card-body">
+    <form method="GET" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label"> Dari Tanggal </label>
+
+        <input
+          type="date"
+          name="start"
+          value="{{ start_date|date:'Y-m-d' }}"
+          class="form-control"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label"> Sampai Tanggal </label>
+
+        <input
+          type="date"
+          name="end"
+          value="{{ end_date|date:'Y-m-d' }}"
+          class="form-control"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-dark">
+          <i class="bi bi-funnel me-1"></i>
+          Tampilkan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-xl col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">Penjualan</div>
+
+      <div class="stat-value mt-2">{{ total_sales|rupiah }}</div>
+    </div>
+  </div>
+
+  <div class="col-xl col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">Pembayaran</div>
+
+      <div class="stat-value mt-2">{{ total_payments|rupiah }}</div>
+    </div>
+  </div>
+
+  <div class="col-xl col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">Piutang Aktif</div>
+
+      <div class="stat-value mt-2">{{ receivables|rupiah }}</div>
+    </div>
+  </div>
+
+  <div class="col-xl col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">PPN</div>
+
+      <div class="stat-value mt-2">{{ total_tax|rupiah }}</div>
+    </div>
+  </div>
+
+  <div class="col-xl col-md-6">
+    <div class="stat-card">
+      <div class="stat-label">PPh / Potongan</div>
+
+      <div class="stat-value mt-2">{{ total_withholding|rupiah }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-end gap-2 mb-3">
+  <a
+    href="{% url 'reports:export_csv' %}?start={{ start_date|date:'Y-m-d' }}&end={{ end_date|date:'Y-m-d' }}"
+    class="btn btn-light border"
+  >
+    <i class="bi bi-filetype-csv me-1"></i>
+    Export CSV
+  </a>
+
+  <a
+    href="{% url 'reports:export_excel' %}?start={{ start_date|date:'Y-m-d' }}&end={{ end_date|date:'Y-m-d' }}"
+    class="btn btn-success"
+  >
+    <i class="bi bi-file-earmark-excel me-1"></i>
+    Export Excel
+  </a>
+</div>
+
+<div class="app-card mb-4">
+  <div class="app-card-header">
+    <div>
+      <h5 class="app-card-title">Laporan Penjualan</h5>
+
+      <small class="text-muted">
+        {{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}
+      </small>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">Invoice</th>
+
+          <th>Tanggal</th>
+
+          <th>Pelanggan</th>
+
+          <th>Status</th>
+
+          <th>Dibayar</th>
+
+          <th>Sisa</th>
+
+          <th class="text-end pe-4">Total</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for invoice in invoices %}
+
+        <tr>
+          <td class="ps-4">
+            <a
+              href="{% url 'invoices:detail' invoice.pk %}"
+              class="fw-semibold text-dark text-decoration-none"
+            >
+              {{ invoice.invoice_number }}
+            </a>
+          </td>
+
+          <td>{{ invoice.invoice_date|date:"d/m/Y" }}</td>
+
+          <td>{{ invoice.customer_name }}</td>
+
+          <td>{{ invoice.get_status_display }}</td>
+
+          <td class="text-success">{{ invoice.paid_amount|rupiah }}</td>
+
+          <td class="text-danger">{{ invoice.balance_due|rupiah }}</td>
+
+          <td class="text-end pe-4 fw-semibold">
+            {{ invoice.grand_total|rupiah }}
+          </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">
+            Tidak ada data pada periode ini.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="app-card">
+  <div class="app-card-header">
+    <div>
+      <h5 class="app-card-title">Laporan Pembayaran</h5>
+
+      <small class="text-muted">
+        Pembayaran yang diterima pada periode laporan.
+      </small>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">Tanggal</th>
+
+          <th>Invoice</th>
+
+          <th>Pelanggan</th>
+
+          <th>Metode</th>
+
+          <th>Referensi</th>
+
+          <th class="text-end pe-4">Nominal</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for payment in payments %}
+
+        <tr>
+          <td class="ps-4">{{ payment.payment_date|date:"d/m/Y" }}</td>
+
+          <td>{{ payment.invoice.invoice_number }}</td>
+
+          <td>{{ payment.invoice.customer_name }}</td>
+
+          <td>{{ payment.get_method_display }}</td>
+
+          <td>{{ payment.reference_number|default:"-" }}</td>
+
+          <td class="text-end pe-4 fw-semibold text-success">
+            {{ payment.amount|rupiah }}
+          </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+          <td colspan="6" class="text-center py-5 text-muted">
+            Tidak ada pembayaran pada periode ini.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

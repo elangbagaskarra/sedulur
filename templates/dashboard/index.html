@@ -1,171 +1,411 @@
-{% extends "layouts/base.html" %} {% block title %} Dashboard | PT Seduur
-Berkarys Grove {% endblock %} {% block content %}
+{% extends "layouts/base.html" %} {% load static currency %} {% block content %}
 
-<div class="page-heading">
-  <h1 class="page-title">Dashboard</h1>
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
 
-  <p class="page-description">
-    Ringkasan aktivitas penjualan, keuangan, dan pajak perusahaan.
-  </p>
+    <p class="page-description">
+      Ringkasan aktivitas penjualan dan keuangan perusahaan.
+    </p>
+  </div>
+
+  <div>
+    <a href="{% url 'invoices:create' %}" class="btn btn-success">
+      <i class="bi bi-plus-lg me-1"></i>
+      Buat Invoice
+    </a>
+  </div>
 </div>
 
-<!-- STATISTIC -->
+<!-- ============================= -->
+<!-- KPI -->
+<!-- ============================= -->
 
 <div class="row g-3 mb-4">
-  <div class="col-xl-3 col-md-6">
-    <div class="stat-card">
-      <div class="stat-card-content">
-        <div class="stat-icon green">
-          <i class="bi bi-graph-up-arrow"></i>
-        </div>
-
+  <div class="col-xl col-md-6">
+    <div class="stat-card h-100">
+      <div class="d-flex justify-content-between">
         <div>
           <div class="stat-label">Omzet Bulan Ini</div>
 
-          <div class="stat-value">Rp 0</div>
+          <div class="stat-value mt-2">{{ omzet_bulan_ini|rupiah }}</div>
 
-          <div class="stat-note">Belum ada transaksi</div>
+          <small class="text-muted"> {{ invoice_bulan_ini }} invoice </small>
+        </div>
+
+        <div class="stat-icon green">
+          <i class="bi bi-graph-up-arrow"></i>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-xl-3 col-md-6">
-    <div class="stat-card">
-      <div class="stat-card-content">
-        <div class="stat-icon yellow">
-          <i class="bi bi-wallet2"></i>
-        </div>
-
+  <div class="col-xl col-md-6">
+    <div class="stat-card h-100">
+      <div class="d-flex justify-content-between">
         <div>
           <div class="stat-label">Piutang Aktif</div>
 
-          <div class="stat-value">Rp 0</div>
+          <div class="stat-value mt-2">{{ piutang_aktif|rupiah }}</div>
 
-          <div class="stat-note">0 invoice</div>
+          <small class="text-muted"> {{ piutang_count }} invoice </small>
+        </div>
+
+        <div class="stat-icon blue">
+          <i class="bi bi-wallet2"></i>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-xl-3 col-md-6">
-    <div class="stat-card">
-      <div class="stat-card-content">
-        <div class="stat-icon red">
+  <div class="col-xl col-md-6">
+    <div class="stat-card h-100">
+      <div class="d-flex justify-content-between">
+        <div>
+          <div class="stat-label">Jatuh Tempo</div>
+
+          <div class="stat-value mt-2">{{ overdue_count }}</div>
+
+          <small class="text-danger"> {{ overdue_amount|rupiah }} </small>
+        </div>
+
+        <div class="stat-icon yellow">
           <i class="bi bi-exclamation-triangle"></i>
         </div>
-
-        <div>
-          <div class="stat-label">Invoice Jatuh Tempo</div>
-
-          <div class="stat-value">0</div>
-
-          <div class="stat-note">Tidak ada invoice overdue</div>
-        </div>
       </div>
     </div>
   </div>
 
-  <div class="col-xl-3 col-md-6">
-    <div class="stat-card">
-      <div class="stat-card-content">
-        <div class="stat-icon blue">
-          <i class="bi bi-percent"></i>
-        </div>
-
+  <div class="col-xl col-md-6">
+    <div class="stat-card h-100">
+      <div class="d-flex justify-content-between">
         <div>
           <div class="stat-label">PPN Keluaran</div>
 
-          <div class="stat-value">Rp 0</div>
+          <div class="stat-value mt-2">{{ ppn_keluaran|rupiah }}</div>
 
-          <div class="stat-note">Bulan berjalan</div>
+          <small class="text-muted"> Bulan berjalan </small>
+        </div>
+
+        <div class="stat-icon green">
+          <i class="bi bi-percent"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl col-md-6">
+    <div class="stat-card h-100">
+      <div class="d-flex justify-content-between">
+        <div>
+          <div class="stat-label">PPh / Potongan</div>
+
+          <div class="stat-value mt-2">{{ pph_potongan|rupiah }}</div>
+
+          <small class="text-muted"> Bulan berjalan </small>
+        </div>
+
+        <div class="stat-icon blue">
+          <i class="bi bi-receipt"></i>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- CHART -->
+<!-- ============================= -->
+<!-- CHART + OVERDUE -->
+<!-- ============================= -->
 
-<div class="row g-3 mb-4">
+<div class="row g-4 mb-4">
   <div class="col-xl-8">
-    <div class="app-card">
+    <div class="app-card h-100">
       <div class="app-card-header">
         <div>
-          <h5 class="app-card-title">Tren Penjualan 12 Bulan</h5>
+          <h5 class="app-card-title">Penjualan 12 Bulan</h5>
 
-          <small class="text-muted"> Total omzet per bulan </small>
+          <small class="text-muted">
+            Nilai invoice yang telah diterbitkan.
+          </small>
         </div>
       </div>
 
-      <div class="app-card-body">
-        <div
-          class="d-flex align-items-center justify-content-center text-muted"
-          style="height: 280px; background: #f8fafb; border-radius: 8px"
-        >
-          Grafik Chart.js akan tampil di sini
-        </div>
+      <div class="app-card-body" style="height: 340px">
+        <canvas id="salesChart"></canvas>
       </div>
     </div>
   </div>
 
   <div class="col-xl-4">
-    <div class="app-card">
+    <div class="app-card h-100">
       <div class="app-card-header">
-        <h5 class="app-card-title">
-          <i class="bi bi-bell text-warning me-1"> </i>
+        <div>
+          <h5 class="app-card-title">Perlu Perhatian</h5>
 
-          Perlu Perhatian
-        </h5>
-      </div>
-
-      <div class="app-card-body">
-        <div class="text-center text-muted py-5">
-          <i class="bi bi-check-circle fs-2 text-success"> </i>
-
-          <p class="mt-2 mb-0">Tidak ada invoice jatuh tempo.</p>
+          <small class="text-muted"> Invoice melewati jatuh tempo. </small>
         </div>
       </div>
+
+      <div class="app-card-body p-0">
+        {% for row in attention_invoices %}
+
+        <a
+          href="{% url 'invoices:detail' row.invoice.pk %}"
+          class="d-block text-decoration-none text-dark border-bottom p-3"
+        >
+          <div class="d-flex justify-content-between gap-3">
+            <div>
+              <div class="fw-semibold">{{ row.invoice.invoice_number }}</div>
+
+              <small class="text-muted">
+                {{ row.invoice.customer_name }}
+              </small>
+            </div>
+
+            <div class="text-end">
+              <div class="fw-semibold text-danger">
+                {{ row.invoice.balance_due|rupiah }}
+              </div>
+
+              <small class="text-danger"> {{ row.days_overdue }} hari </small>
+            </div>
+          </div>
+        </a>
+
+        {% empty %}
+
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-check-circle fs-2 d-block mb-2"></i>
+
+          Tidak ada invoice yang melewati jatuh tempo.
+        </div>
+
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
 
-<!-- TRANSAKSI -->
+<!-- ============================= -->
+<!-- INVOICE TERBARU -->
+<!-- ============================= -->
 
-<div class="app-card">
-  <div class="app-card-header">
-    <div>
-      <h5 class="app-card-title">Transaksi Terbaru</h5>
+<div class="row g-4">
+  <div class="col-xl-8">
+    <div class="app-card">
+      <div class="app-card-header">
+        <div>
+          <h5 class="app-card-title">Invoice Terbaru</h5>
 
-      <small class="text-muted"> Invoice terbaru perusahaan </small>
+          <small class="text-muted"> Aktivitas invoice terakhir. </small>
+        </div>
+
+        <a href="{% url 'invoices:list' %}" class="btn btn-sm btn-light border">
+          Lihat Semua
+        </a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="ps-4">Invoice</th>
+
+              <th>Pelanggan</th>
+
+              <th>Tanggal</th>
+
+              <th>Status</th>
+
+              <th class="text-end pe-4">Total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for invoice in recent_invoices %}
+
+            <tr>
+              <td class="ps-4">
+                <a
+                  href="{% url 'invoices:detail' invoice.pk %}"
+                  class="fw-semibold text-decoration-none text-dark"
+                >
+                  {{ invoice.invoice_number }}
+                </a>
+              </td>
+
+              <td>{{ invoice.customer_name }}</td>
+
+              <td>{{ invoice.invoice_date|date:"d/m/Y" }}</td>
+
+              <td>
+                <span class="badge bg-light text-dark border">
+                  {{ invoice.get_status_display }}
+                </span>
+              </td>
+
+              <td class="text-end pe-4 fw-semibold">
+                {{ invoice.grand_total|rupiah }}
+              </td>
+            </tr>
+
+            {% empty %}
+
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">
+                Belum ada invoice.
+              </td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
-      <thead class="table-light">
-        <tr>
-          <th class="ps-4">INVOICE</th>
+  <!-- ========================= -->
+  <!-- PEMBAYARAN TERBARU -->
+  <!-- ========================= -->
 
-          <th>TANGGAL</th>
+  <div class="col-xl-4">
+    <div class="app-card">
+      <div class="app-card-header">
+        <div>
+          <h5 class="app-card-title">Pembayaran Terbaru</h5>
 
-          <th>PELANGGAN</th>
+          <small class="text-muted"> Pembayaran yang baru dicatat. </small>
+        </div>
+      </div>
 
-          <th>STATUS</th>
+      <div class="app-card-body p-0">
+        {% for payment in recent_payments %}
 
-          <th class="text-end pe-4">NOMINAL</th>
-        </tr>
-      </thead>
+        <a
+          href="{% url 'payments:detail' payment.pk %}"
+          class="d-block p-3 border-bottom text-decoration-none text-dark"
+        >
+          <div class="d-flex justify-content-between gap-3">
+            <div>
+              <div class="fw-semibold">
+                {{ payment.invoice.invoice_number }}
+              </div>
 
-      <tbody>
-        <tr>
-          <td colspan="5" class="text-center py-5 text-muted">
-            Belum ada transaksi.
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              <small class="text-muted">
+                {{ payment.get_method_display }} · {{
+                payment.payment_date|date:"d/m/Y" }}
+              </small>
+            </div>
+
+            <div class="fw-semibold text-success">
+              {{ payment.amount|rupiah }}
+            </div>
+          </div>
+        </a>
+
+        {% empty %}
+
+        <div class="text-center text-muted py-5">Belum ada pembayaran.</div>
+
+        {% endfor %}
+      </div>
+    </div>
   </div>
 </div>
+
+{{ chart_labels|json_script:"sales-chart-labels" }} {{
+chart_data|json_script:"sales-chart-data" }}
+
+<script src="{% static 'vendor/chartjs/chart.umd.js' %}"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const labels = JSON.parse(
+      document.getElementById("sales-chart-labels").textContent,
+    );
+
+    const values = JSON.parse(
+      document.getElementById("sales-chart-data").textContent,
+    );
+
+    const canvas = document.getElementById("salesChart");
+
+    new Chart(canvas, {
+      type: "line",
+
+      data: {
+        labels: labels,
+
+        datasets: [
+          {
+            label: "Penjualan",
+
+            data: values,
+
+            borderWidth: 2,
+
+            tension: 0.35,
+
+            fill: false,
+
+            pointRadius: 4,
+
+            pointHoverRadius: 6,
+          },
+        ],
+      },
+
+      options: {
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        interaction: {
+          intersect: false,
+
+          mode: "index",
+        },
+
+        plugins: {
+          legend: {
+            display: false,
+          },
+
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return "Rp " + Number(context.raw).toLocaleString("id-ID");
+              },
+            },
+          },
+        },
+
+        scales: {
+          y: {
+            beginAtZero: true,
+
+            ticks: {
+              callback: function (value) {
+                if (value >= 1000000000) {
+                  return "Rp " + (value / 1000000000).toFixed(1) + " M";
+                }
+
+                if (value >= 1000000) {
+                  return "Rp " + (value / 1000000).toFixed(1) + " jt";
+                }
+
+                if (value >= 1000) {
+                  return "Rp " + (value / 1000).toFixed(0) + " rb";
+                }
+
+                return "Rp " + value;
+              },
+            },
+          },
+        },
+      },
+    });
+  });
+</script>
 
 {% endblock %}

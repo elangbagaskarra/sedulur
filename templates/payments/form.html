@@ -1,0 +1,110 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="mb-4">
+  <a
+    href="{% url 'invoices:detail' invoice.pk %}"
+    class="text-muted text-decoration-none small"
+  >
+    <i class="bi bi-arrow-left"></i>
+    Kembali ke Invoice
+  </a>
+
+  <h1 class="page-title mt-2">Catat Pembayaran</h1>
+
+  <p class="page-description">{{ invoice.invoice_number }}</p>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-7">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Informasi Pembayaran</h5>
+      </div>
+
+      <div class="app-card-body">
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label"> Tanggal Pembayaran </label>
+
+            {{ form.payment_date }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"> Nominal </label>
+
+            {{ form.amount }} {% if form.amount.errors %}
+
+            <div class="text-danger small mt-1">{{ form.amount.errors }}</div>
+
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"> Metode Pembayaran </label>
+
+            {{ form.method }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"> Nomor Referensi </label>
+
+            {{ form.reference_number }}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label"> Catatan </label>
+
+            {{ form.notes }}
+          </div>
+
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-lg me-1"></i>
+            Simpan Pembayaran
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-5">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Ringkasan Invoice</h5>
+      </div>
+
+      <div class="app-card-body">
+        <small class="text-muted"> Pelanggan </small>
+
+        <div class="fw-semibold mb-3">{{ invoice.customer_name }}</div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> Total Invoice </span>
+
+          <strong> Rp {{ invoice.grand_total|floatformat:0 }} </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> Sudah Dibayar </span>
+
+          <strong class="text-success">
+            Rp {{ invoice.paid_amount|floatformat:0 }}
+          </strong>
+        </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between">
+          <span class="fw-semibold"> Sisa Tagihan </span>
+
+          <strong class="fs-5 text-danger">
+            Rp {{ invoice.balance_due|floatformat:0 }}
+          </strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

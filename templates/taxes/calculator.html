@@ -1,0 +1,148 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="mb-4">
+  <a
+    href="{% url 'taxes:list' %}"
+    class="text-muted text-decoration-none small"
+  >
+    <i class="bi bi-arrow-left"></i>
+    Kembali ke Pajak
+  </a>
+
+  <h1 class="page-title mt-2">Kalkulator Pajak</h1>
+
+  <p class="page-description">
+    Simulasi perhitungan pajak sebelum digunakan pada invoice.
+  </p>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-6">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Input Perhitungan</h5>
+      </div>
+
+      <div class="app-card-body">
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label"> Nominal </label>
+
+            {{ form.amount }} {% if form.amount.errors %}
+
+            <div class="text-danger small mt-1">{{ form.amount.errors }}</div>
+
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"> Pajak </label>
+
+            {{ form.tax }} {% if form.tax.errors %}
+
+            <div class="text-danger small mt-1">{{ form.tax.errors }}</div>
+
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label"> Metode Pajak </label>
+
+            {{ form.tax_mode }}
+
+            <div class="form-text">
+              Exclusive: pajak ditambahkan ke harga. Inclusive: pajak sudah
+              termasuk dalam harga.
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-calculator me-1"></i>
+            Hitung Pajak
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-6">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Hasil Perhitungan</h5>
+      </div>
+
+      <div class="app-card-body">
+        {% if result %}
+
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-muted"> Pajak </span>
+
+          <strong> {{ result.tax.name }} </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-muted"> Tarif </span>
+
+          <strong> {{ result.tax.rate|floatformat:2 }}% </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-muted"> Efek </span>
+
+          <strong> {{ result.tax.get_effect_display }} </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span class="text-muted"> Metode </span>
+
+          <strong> {{ result.tax_mode }} </strong>
+        </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> Nominal Input </span>
+
+          <strong> Rp {{ result.input_amount|floatformat:2 }} </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> Dasar Perhitungan </span>
+
+          <strong> Rp {{ result.base_amount|floatformat:2 }} </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+          <span> Nilai Pajak </span>
+
+          <strong> Rp {{ result.tax_amount|floatformat:2 }} </strong>
+        </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-semibold"> Total </span>
+
+          <strong class="fs-4 text-success">
+            Rp {{ result.total|floatformat:2 }}
+          </strong>
+        </div>
+
+        {% else %}
+
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-calculator fs-1 d-block mb-3"></i>
+
+          Masukkan nominal dan pilih pajak, lalu klik
+          <strong>Hitung Pajak</strong>.
+        </div>
+
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

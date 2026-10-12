@@ -1,0 +1,211 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1 class="page-title">Pajak</h1>
+    <p class="page-description">
+      Kelola PPN, PPh, pajak final, dan tarif perpajakan aplikasi.
+    </p>
+  </div>
+
+  <div class="d-flex gap-2">
+    <a href="{% url 'taxes:calculator' %}" class="btn btn-light border">
+      <i class="bi bi-calculator"></i>
+      Kalkulator
+    </a>
+
+    <a href="{% url 'taxes:create' %}" class="btn btn-success">
+      <i class="bi bi-plus-lg"></i>
+      Tambah Pajak
+    </a>
+  </div>
+</div>
+
+{% if messages %} {% for message in messages %}
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+{% endfor %} {% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">Total Pajak</div>
+
+      <div class="stat-value">{{ total_taxes }}</div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">Pajak Aktif</div>
+
+      <div class="stat-value">{{ active_taxes }}</div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">Menambah Total</div>
+
+      <div class="stat-value">{{ add_taxes }}</div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="stat-label">Pemotongan</div>
+
+      <div class="stat-value">{{ deduct_taxes }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="app-card">
+  <div class="app-card-header">
+    <div>
+      <h5 class="app-card-title">Daftar Pajak</h5>
+
+      <small class="text-muted"> Tarif pajak yang digunakan aplikasi. </small>
+    </div>
+  </div>
+
+  <div class="p-3 border-bottom">
+    <form method="GET" class="row g-2">
+      <div class="col-md-6">
+        <input
+          type="text"
+          name="q"
+          value="{{ query }}"
+          class="form-control"
+          placeholder="Cari nama atau kode pajak..."
+        />
+      </div>
+
+      <div class="col-md-2">
+        <select name="effect" class="form-select">
+          <option value="all">Semua Efek</option>
+
+          <option value="ADD">Menambah Total</option>
+
+          <option value="DEDUCT">Pemotongan</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <select name="status" class="form-select">
+          <option value="all">Semua Status</option>
+
+          <option value="active">Aktif</option>
+
+          <option value="inactive">Nonaktif</option>
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-dark w-100">Filter</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">Kode</th>
+          <th>Nama Pajak</th>
+          <th>Jenis</th>
+          <th>Tarif</th>
+          <th>Efek</th>
+          <th>Status</th>
+          <th class="text-end pe-4">Aksi</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for tax in taxes %}
+
+        <tr>
+          <td class="ps-4 fw-semibold">{{ tax.code }}</td>
+
+          <td>
+            <div class="fw-semibold">{{ tax.name }}</div>
+
+            <small class="text-muted">
+              {{ tax.description|default:"-" }}
+            </small>
+          </td>
+
+          <td>{{ tax.get_tax_type_display }}</td>
+
+          <td>{{ tax.rate|floatformat:2 }}%</td>
+
+          <td>
+            {% if tax.effect == "ADD" %}
+
+            <span class="badge bg-success-subtle text-success"> Menambah </span>
+
+            {% else %}
+
+            <span class="badge bg-warning-subtle text-warning"> Potongan </span>
+
+            {% endif %}
+          </td>
+
+          <td>
+            {% if tax.is_active %}
+
+            <span class="badge bg-success-subtle text-success"> Aktif </span>
+
+            {% else %}
+
+            <span class="badge bg-secondary-subtle text-secondary">
+              Nonaktif
+            </span>
+
+            {% endif %}
+          </td>
+
+          <td class="text-end pe-4">
+            <a
+              href="{% url 'taxes:update' tax.pk %}"
+              class="btn btn-sm btn-light"
+            >
+              <i class="bi bi-pencil"></i>
+            </a>
+
+            <form
+              method="POST"
+              action="{% url 'taxes:toggle_status' tax.pk %}"
+              class="d-inline"
+            >
+              {% csrf_token %}
+
+              <button type="submit" class="btn btn-sm btn-light">
+                {% if tax.is_active %}
+
+                <i class="bi bi-pause-circle"></i>
+
+                {% else %}
+
+                <i class="bi bi-play-circle"></i>
+
+                {% endif %}
+              </button>
+            </form>
+          </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+          <td colspan="7" class="text-center py-5 text-muted">
+            Belum ada data pajak.
+          </td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

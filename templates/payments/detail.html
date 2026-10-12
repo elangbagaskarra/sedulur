@@ -1,0 +1,76 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="mb-4">
+  <a
+    href="{% url 'payments:list' %}"
+    class="text-muted text-decoration-none small"
+  >
+    <i class="bi bi-arrow-left"></i>
+    Kembali
+  </a>
+
+  <h1 class="page-title mt-2">Detail Pembayaran</h1>
+
+  <p class="page-description">{{ payment.invoice.invoice_number }}</p>
+</div>
+
+<div class="row">
+  <div class="col-xl-7">
+    <div class="app-card">
+      <div class="app-card-header">
+        <h5 class="app-card-title">Informasi Pembayaran</h5>
+      </div>
+
+      <div class="app-card-body">
+        <div class="row gy-4">
+          <div class="col-md-6">
+            <small class="text-muted"> Invoice </small>
+
+            <div class="fw-semibold">
+              <a
+                href="{% url 'invoices:detail' payment.invoice.pk %}"
+                class="text-decoration-none"
+              >
+                {{ payment.invoice.invoice_number }}
+              </a>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Tanggal </small>
+
+            <div>{{ payment.payment_date|date:"d/m/Y" }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Metode </small>
+
+            <div>{{ payment.get_method_display }}</div>
+          </div>
+
+          <div class="col-md-6">
+            <small class="text-muted"> Referensi </small>
+
+            <div>{{ payment.reference_number|default:"-" }}</div>
+          </div>
+
+          <div class="col-12">
+            <small class="text-muted"> Nominal </small>
+
+            <div class="fs-4 fw-bold text-success">
+              Rp {{ payment.amount|floatformat:0 }}
+            </div>
+          </div>
+
+          <div class="col-12">
+            <small class="text-muted"> Catatan </small>
+
+            <div>{{ payment.notes|default:"-"|linebreaks }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

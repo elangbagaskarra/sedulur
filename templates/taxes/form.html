@@ -1,0 +1,89 @@
+{% extends "layouts/base.html" %} {% block title %} {{ title }} {% endblock %}
+{% block content %}
+
+<div class="mb-4">
+  <a
+    href="{% url 'taxes:list' %}"
+    class="text-muted text-decoration-none small"
+  >
+    <i class="bi bi-arrow-left"></i>
+    Kembali
+  </a>
+
+  <h1 class="page-title mt-2">{{ title }}</h1>
+
+  <p class="page-description">{{ subtitle }}</p>
+</div>
+
+<div class="row">
+  <div class="col-xl-8">
+    <form method="POST">
+      {% csrf_token %}
+
+      <div class="app-card">
+        <div class="app-card-header">
+          <h5 class="app-card-title">Informasi Pajak</h5>
+        </div>
+
+        <div class="app-card-body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label"> Nama Pajak </label>
+
+              {{ form.name }} {{ form.name.errors }}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label"> Kode </label>
+
+              {{ form.code }} {{ form.code.errors }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"> Jenis Pajak </label>
+
+              {{ form.tax_type }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"> Tarif (%) </label>
+
+              {{ form.rate }} {{ form.rate.errors }}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"> Efek Perhitungan </label>
+
+              {{ form.effect }}
+            </div>
+
+            <div class="col-md-6 d-flex align-items-end">
+              <div class="form-check form-switch mb-2">
+                {{ form.is_active }}
+
+                <label class="form-check-label"> Pajak aktif </label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label"> Deskripsi </label>
+
+              {{ form.description }}
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button class="btn btn-success">
+              <i class="bi bi-check-lg"></i>
+              Simpan
+            </button>
+
+            <a href="{% url 'taxes:list' %}" class="btn btn-light"> Batal </a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

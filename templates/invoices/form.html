@@ -1,0 +1,401 @@
+{% extends "layouts/base.html" %} {% block content %}
+
+<div class="mb-4">
+  <a
+    href="{% url 'invoices:list' %}"
+    class="text-muted text-decoration-none small"
+  >
+    <i class="bi bi-arrow-left"></i>
+    Kembali ke Invoice
+  </a>
+
+  <h1 class="page-title mt-2">Buat Invoice</h1>
+
+  <p class="page-description">Buat tagihan baru untuk pelanggan.</p>
+</div>
+
+{% if messages %} {% for message in messages %}
+
+<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+
+{% endfor %} {% endif %}
+
+<form method="POST" id="invoice-form">
+  {% csrf_token %}
+
+  <div class="app-card mb-4">
+    <div class="app-card-header">
+      <h5 class="app-card-title">Informasi Invoice</h5>
+    </div>
+
+    <div class="app-card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label"> Pelanggan </label>
+
+          {{ form.customer }} {{ form.customer.errors }}
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"> Tanggal Invoice </label>
+
+          {{ form.invoice_date }}
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"> Jatuh Tempo </label>
+
+          {{ form.due_date }}
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"> Mata Uang </label>
+
+          {{ form.currency }}
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label"> Metode Pajak </label>
+
+          {{ form.tax_mode }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-card mb-4">
+    <div class="app-card-header">
+      <div>
+        <h5 class="app-card-title">Item Invoice</h5>
+
+        <small class="text-muted"> Tambahkan produk atau jasa. </small>
+      </div>
+
+      <button
+        type="button"
+        id="add-item"
+        class="btn btn-sm btn-outline-success"
+      >
+        <i class="bi bi-plus-lg"></i>
+        Tambah Item
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      {{ formset.management_form }}
+
+      <table class="table align-middle mb-0" id="invoice-items">
+        <thead class="table-light">
+          <tr>
+            <th style="min-width: 220px">Produk / Jasa</th>
+
+            <th style="width: 110px">Qty</th>
+
+            <th style="width: 180px">Harga</th>
+
+            <th style="width: 120px">Diskon %</th>
+
+            <th style="width: 180px">Pajak</th>
+
+            <th style="width: 160px">Total</th>
+
+            <th style="width: 60px"></th>
+          </tr>
+        </thead>
+
+        <tbody id="item-container">
+          {% for item_form in formset %}
+
+          <tr class="item-row">
+            <td>
+              {{ item_form.id }} {{ item_form.product }} {{
+              item_form.product.errors }}
+            </td>
+
+            <td>{{ item_form.quantity }}</td>
+
+            <td>{{ item_form.unit_price }}</td>
+
+            <td>{{ item_form.discount_percent }}</td>
+
+            <td>{{ item_form.tax }}</td>
+
+            <td>
+              <strong class="row-total"> Rp 0 </strong>
+            </td>
+
+            <td>
+              <div class="d-none">{{ item_form.DELETE }}</div>
+
+              <button
+                type="button"
+                class="btn btn-sm btn-light text-danger remove-item"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div id="empty-form" class="d-none">
+        <table>
+          <tbody>
+            <tr class="item-row">
+              <td>
+                {{ formset.empty_form.id }} {{ formset.empty_form.product }}
+              </td>
+
+              <td>{{ formset.empty_form.quantity }}</td>
+
+              <td>{{ formset.empty_form.unit_price }}</td>
+
+              <td>{{ formset.empty_form.discount_percent }}</td>
+
+              <td>{{ formset.empty_form.tax }}</td>
+
+              <td>
+                <strong class="row-total"> Rp 0 </strong>
+              </td>
+
+              <td>
+                <div class="d-none">{{ formset.empty_form.DELETE }}</div>
+
+                <button
+                  type="button"
+                  class="btn btn-sm btn-light text-danger remove-item"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-xl-7">
+      <div class="app-card">
+        <div class="app-card-header">
+          <h5 class="app-card-title">Catatan</h5>
+        </div>
+
+        <div class="app-card-body">
+          <div class="mb-3">
+            <label class="form-label"> Catatan Invoice </label>
+
+            {{ form.notes }}
+          </div>
+
+          <div>
+            <label class="form-label"> Syarat & Ketentuan </label>
+
+            {{ form.terms }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-5">
+      <div class="app-card">
+        <div class="app-card-header">
+          <h5 class="app-card-title">Ringkasan</h5>
+        </div>
+
+        <div class="app-card-body">
+          <div class="d-flex justify-content-between mb-3">
+            <span> Subtotal </span>
+
+            <strong id="preview-subtotal"> Rp 0 </strong>
+          </div>
+
+          <div class="d-flex justify-content-between mb-3">
+            <span> Diskon </span>
+
+            <strong id="preview-discount"> Rp 0 </strong>
+          </div>
+
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <span class="fw-semibold"> Estimasi Dasar </span>
+
+            <strong id="preview-total" class="fs-5 text-success"> Rp 0 </strong>
+          </div>
+
+          <div class="form-text mt-3">
+            Pajak final dihitung kembali oleh server saat invoice disimpan.
+          </div>
+        </div>
+      </div>
+
+      <div class="d-grid gap-2 mt-3">
+        <button
+          type="submit"
+          name="action"
+          value="issue"
+          class="btn btn-success btn-lg"
+        >
+          <i class="bi bi-check-circle me-1"></i>
+          Terbitkan Invoice
+        </button>
+
+        <button
+          type="submit"
+          name="action"
+          value="draft"
+          class="btn btn-light border"
+        >
+          Simpan Draft
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+{{ product_data|json_script:"product-data" }}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const productData = JSON.parse(
+      document.getElementById("product-data").textContent,
+    );
+
+    const container = document.getElementById("item-container");
+
+    const totalForms = document.getElementById("id_items-TOTAL_FORMS");
+
+    const addButton = document.getElementById("add-item");
+
+    function rupiah(value) {
+      return "Rp " + Number(value || 0).toLocaleString("id-ID");
+    }
+
+    function calculatePreview() {
+      let subtotal = 0;
+      let discountTotal = 0;
+
+      container.querySelectorAll(".item-row").forEach(function (row) {
+        const deleteBox = row.querySelector('input[name$="-DELETE"]');
+
+        if (deleteBox && deleteBox.checked) {
+          return;
+        }
+
+        const qty = parseFloat(row.querySelector(".item-qty")?.value || 0);
+
+        const price = parseFloat(row.querySelector(".item-price")?.value || 0);
+
+        const discount = parseFloat(
+          row.querySelector(".item-discount")?.value || 0,
+        );
+
+        const gross = qty * price;
+
+        const discountAmount = (gross * discount) / 100;
+
+        const total = gross - discountAmount;
+
+        subtotal += gross;
+
+        discountTotal += discountAmount;
+
+        const totalElement = row.querySelector(".row-total");
+
+        if (totalElement) {
+          totalElement.textContent = rupiah(total);
+        }
+      });
+
+      document.getElementById("preview-subtotal").textContent =
+        rupiah(subtotal);
+
+      document.getElementById("preview-discount").textContent =
+        rupiah(discountTotal);
+
+      document.getElementById("preview-total").textContent = rupiah(
+        subtotal - discountTotal,
+      );
+    }
+
+    function bindRow(row) {
+      const productSelect = row.querySelector(".item-product");
+
+      const priceInput = row.querySelector(".item-price");
+
+      const taxSelect = row.querySelector(".item-tax");
+
+      if (productSelect) {
+        productSelect.addEventListener("change", function () {
+          const data = productData[this.value];
+
+          if (!data) {
+            return;
+          }
+
+          if (priceInput) {
+            priceInput.value = data.price;
+          }
+
+          if (taxSelect && data.tax) {
+            taxSelect.value = data.tax;
+          }
+
+          calculatePreview();
+        });
+      }
+
+      row
+        .querySelectorAll(".item-qty, .item-price, .item-discount")
+        .forEach(function (input) {
+          input.addEventListener("input", calculatePreview);
+        });
+
+      const removeButton = row.querySelector(".remove-item");
+
+      if (removeButton) {
+        removeButton.addEventListener("click", function () {
+          const deleteInput = row.querySelector('input[name$="-DELETE"]');
+
+          if (deleteInput) {
+            deleteInput.checked = true;
+
+            row.style.display = "none";
+          } else {
+            row.remove();
+          }
+
+          calculatePreview();
+        });
+      }
+    }
+
+    container.querySelectorAll(".item-row").forEach(bindRow);
+
+    addButton.addEventListener("click", function () {
+      const index = parseInt(totalForms.value);
+
+      let html = document.querySelector("#empty-form tbody").innerHTML;
+
+      html = html.replaceAll("__prefix__", index);
+
+      container.insertAdjacentHTML("beforeend", html);
+
+      totalForms.value = index + 1;
+
+      const newRow = container.lastElementChild;
+
+      bindRow(newRow);
+
+      calculatePreview();
+    });
+
+    calculatePreview();
+  });
+</script>
+
+{% endblock %}
